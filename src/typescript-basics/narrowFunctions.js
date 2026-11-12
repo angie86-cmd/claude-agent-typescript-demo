@@ -1,10 +1,11 @@
 "use strict";
-//create a function that takes a string and a number and use the typeof operator to check the type of the variable
+// Narrowing with `typeof`: this function takes a string and a number and prints the type of each one at runtime
 function checkVariableTypes(str, num) {
     console.log(typeof str); // "string"
     console.log(typeof num); // "number"
 }
-// Create a function function that will sum two variables or unite them if these variables have string type
+// Narrowing a union type: sums x and y if both are numbers, otherwise converts both to strings and concatenates them.
+// Inside the `if`, TypeScript knows x and y are `number`.
 function sumOrConcatenate(x, y) {
     if (typeof x === "number" && typeof y === "number") {
         return x + y;
@@ -13,25 +14,30 @@ function sumOrConcatenate(x, y) {
         return x.toString() + y.toString();
     }
 }
-// create a function that checks if a property exists in an object - you can use an operator that is named 'in'
+// Narrowing with `in`: returns true if the property `prop` exists in the object `obj`
 function checkPropertyExists(obj, prop) {
     return prop in obj;
 }
-//create a function that use a call signature to check if a variable is a function 
+// Type predicate (`variable is Function`): returns true if the variable is a function.
+// When it returns true, TypeScript narrows the variable's type to `Function` in the calling code.
 function isFunction(variable) {
     return typeof variable === "function";
 }
+// Receives an object of type `additionFunction` and prints its comment
 function callSomething(fn) {
     console.log('Comment: ', fn.comment);
 }
+// Calling the functions above to see their output when running `node narrowFunctions.js`
 checkVariableTypes("hola", 5);
 console.log(sumOrConcatenate(2, 3));
 console.log(sumOrConcatenate("a", 3));
 console.log(checkPropertyExists({ name: "Ada" }, "name"));
 console.log(isFunction(() => { }));
 callSomething({ comment: "hola" });
+// An empty class, used below as the type that the constructor signature creates
 class AdditionClass {
 }
+// Receives a constructor (matching AdditionFactory) and returns a new instance created with `new`
 function addService(addService) {
     return new addService();
 }
@@ -43,10 +49,13 @@ function getFirstElement(arr) {
 function createCorrespondence(fn) {
     return fn;
 }
+// Generic function: takes an array of any type `Type` and returns its last element (or undefined if the array is empty)
 function lastElement(arr) {
     return arr.slice(-1).pop();
 }
+// Array of numbers: `lastElement` will infer `Type` as `number`
 const numArr = [1, 5, 9, 20];
 lastElement(numArr); // This will return number type
+// Array of strings: `lastElement` will infer `Type` as `string`
 const stringArr = ["test", "check", "checkstr"];
 lastElement(stringArr); // This will return string type

@@ -2,13 +2,24 @@
 
 My exercises for the Udemy course **TypeScript Crash Course**.
 
-Each lesson has its own file, written by me while following the course:
+## Files
 
-- `02-first-example.ts` – first example
-- `03-types.ts` – types
-- `04-narrowing.ts` – narrowing
-- `05-interfaces.ts` – interfaces
-- `06-custom-types.ts` – custom types
-- `07-classes.ts` – classes
+- `app.ts` – first example (variables and `alert`, runs in the browser via `index.html`)
+- `types.ts` – basic types, optional/default parameters, interfaces, `readonly`, union types
+- `narrowFunctions.ts` – type narrowing (`typeof`, `in`, type predicates, custom call types)
+- `index.html` – loads `app.js` in the browser
 
-Type-check from the repo root with `npm run check:basics`.
+## Compile and run
+
+From this folder:
+
+```powershell
+npx tsc              # compiles every .ts file using tsconfig.json (strict mode)
+node types.js        # run a file in the terminal
+```
+
+`app.js` uses `alert`, so open `index.html` in a browser instead and check the
+console with F12.
+
+To only type-check without generating `.js` files, run `npm run check:basics`
+from the repo root.
