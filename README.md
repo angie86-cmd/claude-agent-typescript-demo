@@ -1,5 +1,9 @@
 # claude-agent-typescript-demo
 
+This repo has two parts: the Claude Platform 101 project (in `src/`) and my TypeScript course exercises (in `typescript-basics/`).
+
+## Claude Platform 101 project
+
 Mini project from the **Claude Platform 101** course (Anthropic Academy):
 a small TypeScript app built on the Anthropic SDK. It starts with a single
 Messages API call and will grow lesson by lesson.
@@ -41,6 +45,16 @@ Lessons from the course to be added:
 - [ ] Tools (tool definitions and tool use)
 - [ ] Agent loop
 - [ ] Evaluations
+
+## TypeScript basics (Udemy)
+
+The [typescript-basics/](typescript-basics/) folder holds my exercises for the Udemy course
+"TypeScript Crash Course" (one file per lesson, with its own strict `tsconfig.json`).
+Type-check them without touching `src/`:
+
+```bash
+npm run check:basics
+```
 
 ## License
 
