@@ -10,6 +10,7 @@ My exercises for the Udemy course **TypeScript Crash Course**.
 - `narrowFunctions.ts` – type narrowing (`typeof`, `in`, type predicates, construct signatures, generics)
 - `interfaceCreation.ts` – interfaces (`Animal`, `Donations`, `Product`), a class that `implements` an interface (`Frog`), access modifiers (`public`, `private`, `protected`) and inheritance with `extends` (`User` and `Admin`)
 - `customTypes.ts` – custom types with `type` aliases (`Receipt`), mapped types (`User3`), a function that picks properties from a type, and index signatures (`Book`)
+- `product.ts` – a `Product` interface implemented by two classes (`DigitalProduct` and `PhysicalProduct`), each with its own `buy()` and `getAllInfo()`; ends with `export {};` so the file is a module and its `Product` does not clash with the one in `interfaceCreation.ts`
 - `index.html` – loads `app.js` in the browser
 
 ## Compile and run
