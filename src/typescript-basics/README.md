@@ -6,7 +6,8 @@ My exercises for the Udemy course **TypeScript Crash Course**.
 
 - `app.ts` – first example (variables and `alert`, runs in the browser via `index.html`)
 - `types.ts` – basic types, optional/default parameters, interfaces, `readonly`, union types
-- `narrowFunctions.ts` – type narrowing (`typeof`, `in`, type predicates, custom call types)
+- `narrowFunctions.ts` – type narrowing (`typeof`, `in`, type predicates, construct signatures, generics)
+- `interfaceCreation.ts` – interfaces (`Animal`, `Donations`, `Product`), a class that `implements` an interface (`Frog`), access modifiers (`public`, `private`, `protected`) and inheritance with `extends` (`User` and `Admin`)
 - `index.html` – loads `app.js` in the browser
 
 ## Compile and run
