@@ -9,6 +9,7 @@ My exercises for the Udemy course **TypeScript Crash Course**.
 - `tupleTypes.ts` – tuples with mixed element types, accessing elements, and adding values
 - `narrowFunctions.ts` – type narrowing (`typeof`, `in`, type predicates, construct signatures, generics)
 - `interfaceCreation.ts` – interfaces (`Animal`, `Donations`, `Product`), a class that `implements` an interface (`Frog`), access modifiers (`public`, `private`, `protected`) and inheritance with `extends` (`User` and `Admin`)
+- `customTypes.ts` – custom types with `type` aliases (`Receipt`), mapped types (`User3`), a function that picks properties from a type, and index signatures (`Book`)
 - `index.html` – loads `app.js` in the browser
 
 ## Compile and run
