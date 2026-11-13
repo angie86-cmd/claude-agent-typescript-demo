@@ -50,3 +50,10 @@ file here, and every module records one improvement or optimization below.
   carries the activity log instead of a long instruction prompt. The same skill
   can be reused across requests and agents and updated in one place. The script
   also deletes the skill it uploads, so repeated runs leave the workspace clean.
+- **MCP connector (`mcp.ts`, `mcpPublic.ts`)** – Remote MCP servers are attached
+  with `mcp_servers` + `mcp_toolset`, so Anthropic's API connects to the server
+  and runs its tools; there is no local MCP client, transport or process to
+  manage. Switching servers only means changing a URL and, when the server needs
+  it, an `authorization_token`. `mcpPublic.ts` (DeepWiki, no token) was tested
+  end to end; `mcp.ts` (Linear) needs a `LINEAR_MCP_TOKEN` and has only been
+  type-checked.
