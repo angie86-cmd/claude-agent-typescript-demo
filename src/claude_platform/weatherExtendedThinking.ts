@@ -1,6 +1,9 @@
 import { config } from "dotenv";
 import { fileURLToPath } from "node:url";
 import Anthropic from "@anthropic-ai/sdk";
+import { betaZodTool } from "@anthropic-ai/sdk/helpers/beta/zod";
+import { z } from "zod";
+import { WeatherService, toToolResult } from "./weatherService.js";
 
 // Load .env from the project root no matter which folder the script is run from.
 config({ path: fileURLToPath(new URL("../../.env", import.meta.url)) });
@@ -23,18 +26,17 @@ const PROMPT =
 // Tool definition
 // ---------------------------------------------------------------------------
 
-/** Weather tool Claude may request; here it is only declared, not executed. */
-const weatherTool: Anthropic.Tool = {
+const weather = new WeatherService();
+
+/** Weather tool; the tool runner executes `run` whenever Claude requests it. */
+const weatherTool = betaZodTool({
   name: "get_weather",
   description: "Get the current weather for a city.",
-  input_schema: {
-    type: "object",
-    properties: {
-      city: { type: "string", description: "City name" },
-    },
-    required: ["city"],
-  },
-};
+  inputSchema: z.object({
+    city: z.string().describe("City name"),
+  }),
+  run: async ({ city }) => toToolResult(weather.getWeather(city), city),
+});
 
 // ---------------------------------------------------------------------------
 // Request
@@ -43,13 +45,14 @@ const weatherTool: Anthropic.Tool = {
 /**
  * Sends the prompt with adaptive thinking enabled at the given effort level.
  * Effort controls how much reasoning (and therefore time and tokens) the model
- * spends before answering.
+ * spends before answering. The tool runner executes every requested tool call
+ * and resolves with Claude's final message.
  */
 async function askWithEffort(
   client: Anthropic,
   effort: Effort
-): Promise<Anthropic.Message> {
-  return client.messages.create({
+): Promise<Anthropic.Beta.BetaMessage> {
+  const runner = client.beta.messages.toolRunner({
     model: MODEL,
     max_tokens: MAX_TOKENS,
     // "adaptive": Claude decides when and how much to think.
@@ -59,13 +62,16 @@ async function askWithEffort(
     tools: [weatherTool],
     messages: [{ role: "user", content: PROMPT }],
   });
+
+  // Awaiting the runner yields the final message once all tool calls have settled.
+  return await runner;
 }
 
 /**
  * Prints each content block of the response: the thinking summary, the final
  * text, and any tool call Claude requested, followed by token usage.
  */
-function printResponse(effort: Effort, response: Anthropic.Message): void {
+function printResponse(effort: Effort, response: Anthropic.Beta.BetaMessage): void {
   console.log(`\n=== effort: ${effort} ===`);
 
   for (const block of response.content) {

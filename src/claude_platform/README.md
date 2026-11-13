@@ -29,3 +29,10 @@ file here, and every module records one improvement or optimization below.
   compare effort settings and see how the model reasons before answering, so the
   effort (and the model) can be tuned to what each task needs when evaluating
   responses.
+- **Extended thinking + tool runner (`weatherExtendedThinking.ts`)** – The
+  request now goes through `client.beta.messages.toolRunner()` with
+  `betaZodTool()`, so the full cycle (Claude requests `get_weather`, the tool
+  runs, the result goes back, Claude answers) is handled by the SDK in one
+  `await` instead of stopping at the first tool call. The mock data and lookup
+  logic were extracted to `weatherService.ts` and are shared by `weather.ts` and
+  this file, removing duplicated code and making new examples cheaper to add.
