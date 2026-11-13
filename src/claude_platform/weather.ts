@@ -1,9 +1,16 @@
-import "dotenv/config";
+import { config } from "dotenv";
+import { fileURLToPath } from "node:url";
 import Anthropic from "@anthropic-ai/sdk";
+import { betaZodTool } from "@anthropic-ai/sdk/helpers/beta/zod";
+import { z } from "zod";
 
 // Cheap model (Haiku) and a low token limit so experimenting costs almost nothing.
 const MODEL = "claude-haiku-5-5";
 const MAX_TOKENS = 1024;
+
+// Load .env from the project root no matter which folder the script is run from
+// (dotenv would otherwise look in the current working directory only).
+config({ path: fileURLToPath(new URL("../../.env", import.meta.url)) });
 
 // ---------------------------------------------------------------------------
 // Data types
@@ -23,11 +30,6 @@ interface ForecastDay {
   minC: number;
   maxC: number;
   condition: string;
-}
-
-/** Input Claude sends to the tools (both only receive the city). */
-interface CityInput {
-  city: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -87,71 +89,47 @@ class WeatherService {
   }
 }
 
-/**
- * Runs the tools that Claude requests.
- * Maps the tool name to a WeatherService call and always returns a string,
- * which is what a `tool_result` expects.
- */
-class ToolRunner {
-  constructor(private readonly weather: WeatherService) {}
-
-  /** Dispatches the tool by name and serializes the result as JSON. */
-  run(name: string, input: CityInput): string {
-    switch (name) {
-      case "get_weather":
-        return this.format(this.weather.getWeather(input.city), input.city);
-      case "get_forecast":
-        return this.format(this.weather.getForecast(input.city), input.city);
-      default:
-        return `Unknown tool: ${name}`;
-    }
-  }
-
-  /** Converts the result to JSON, or to an error message when there is no data. */
-  private format(result: unknown, city: string): string {
-    return result === undefined
-      ? `No data available for the city "${city}".`
-      : JSON.stringify(result);
-  }
+/** Serializes a lookup result as JSON, or as an error message when there is no data. */
+function toToolResult(result: unknown, city: string): string {
+  return result === undefined
+    ? `No data available for the city "${city}".`
+    : JSON.stringify(result);
 }
 
 // ---------------------------------------------------------------------------
-// Tool definitions (sent to Claude on every request)
+// Tool definitions
 // ---------------------------------------------------------------------------
 
-/** Tools Claude may ask to use; each describes its name, purpose and parameters. */
-const tools: Anthropic.Tool[] = [
-  {
-    name: "get_weather",
-    description: "Get today's current weather for a city.",
-    input_schema: {
-      type: "object",
-      properties: {
-        city: { type: "string", description: "The city to check" },
-      },
-      required: ["city"],
-    },
-  },
-  {
-    name: "get_forecast",
-    description: "Get the weather forecast for the next few days for a city.",
-    input_schema: {
-      type: "object",
-      properties: {
-        city: { type: "string", description: "The city to check" },
-      },
-      required: ["city"],
-    },
-  },
-];
+const weather = new WeatherService();
+
+/** Tool: current weather. The Zod schema is converted to the JSON schema Claude receives. */
+const weatherTool = betaZodTool({
+  name: "get_weather",
+  description: "Get today's current weather for a city.",
+  inputSchema: z.object({
+    city: z.string().describe("The city to check"),
+  }),
+  run: async ({ city }) => toToolResult(weather.getWeather(city), city),
+});
+
+/** Tool: multi-day forecast. */
+const forecastTool = betaZodTool({
+  name: "get_forecast",
+  description: "Get the weather forecast for the next few days for a city.",
+  inputSchema: z.object({
+    city: z.string().describe("The city to check"),
+  }),
+  run: async ({ city }) => toToolResult(weather.getForecast(city), city),
+});
 
 // ---------------------------------------------------------------------------
-// Agent loop
+// Entry point
 // ---------------------------------------------------------------------------
 
 /**
- * Agentic loop: sends the conversation to Claude; if it asks to use tools,
- * runs them, returns the results and repeats until a final answer arrives.
+ * Sends the prompt through the SDK tool runner, which handles the whole loop:
+ * it executes the requested tools, returns their results to Claude and repeats
+ * until Claude produces a final answer.
  */
 async function main(): Promise<void> {
   // Fail early if no API key is configured.
@@ -162,47 +140,25 @@ async function main(): Promise<void> {
   }
 
   const client = new Anthropic({ apiKey });
-  const runner = new ToolRunner(new WeatherService());
 
-  // Conversation history; starts with the user's question.
-  const messages: Anthropic.MessageParam[] = [
-    {
-      role: "user",
-      content: "What is the weather like in Bogota today, and what will it be like over the next few days?",
-    },
-  ];
+  const runner = client.beta.messages.toolRunner({
+    model: MODEL,
+    max_tokens: MAX_TOKENS,
+    messages: [
+      {
+        role: "user",
+        content:
+          "What is the weather like in Bogota today, and what will it be like over the next few days?",
+      },
+    ],
+    tools: [weatherTool, forecastTool],
+  });
 
-  while (true) {
-    const response = await client.messages.create({
-      model: MODEL,
-      max_tokens: MAX_TOKENS,
-      messages,
-      tools,
-    });
+  // Awaiting the runner yields the final message once all tool calls have settled.
+  const finalMessage = await runner;
 
-    if (response.stop_reason !== "tool_use") {
-      // Claude is done: this is the text of the final answer.
-      for (const block of response.content) {
-        if (block.type === "text") console.log(block.text);
-      }
-      break;
-    }
-
-    // Save the assistant's turn (including the tool_use blocks) in the history.
-    messages.push({ role: "assistant", content: response.content });
-
-    // Run each requested tool and reply with its tool_result,
-    // linked by tool_use_id.
-    const toolResults: Anthropic.ToolResultBlockParam[] = response.content
-      .filter((block): block is Anthropic.ToolUseBlock => block.type === "tool_use")
-      .map((block) => ({
-        type: "tool_result",
-        tool_use_id: block.id,
-        content: runner.run(block.name, block.input as CityInput),
-      }));
-
-    // Results go back as a user message for the next turn.
-    messages.push({ role: "user", content: toolResults });
+  for (const block of finalMessage.content) {
+    if (block.type === "text") console.log(block.text);
   }
 }
 
