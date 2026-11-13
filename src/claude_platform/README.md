@@ -44,3 +44,9 @@ file here, and every module records one improvement or optimization below.
   maintain) and its portability (the code runs anywhere Node.js does, with no
   local Python runtime or sandbox required). The two calls share a single
   `printBlocks()` helper instead of repeating the output loop.
+- **Skills (`skills.ts`)** – The status-report rules (sections, tone, how to
+  summarize, how to handle blockers) live in a versioned `SKILL.md` that is
+  uploaded once and referenced by ID (`version: "latest"`), so the request only
+  carries the activity log instead of a long instruction prompt. The same skill
+  can be reused across requests and agents and updated in one place. The script
+  also deletes the skill it uploads, so repeated runs leave the workspace clean.
