@@ -36,3 +36,11 @@ file here, and every module records one improvement or optimization below.
   `await` instead of stopping at the first tool call. The mock data and lookup
   logic were extracted to `weatherService.ts` and are shared by `weather.ts` and
   this file, removing duplicated code and making new examples cheaper to add.
+- **Server tools (`serverTools.ts`)** – Web search and code execution run on
+  Anthropic's side (`web_search_20260209`, `code_execution_20260120`), so there
+  is no local tool code to write, host or secure: the agent only declares the
+  tool and reads the result blocks. This improves the agent's scalability (new
+  capabilities are one entry in `tools`, with no extra infrastructure to run or
+  maintain) and its portability (the code runs anywhere Node.js does, with no
+  local Python runtime or sandbox required). The two calls share a single
+  `printBlocks()` helper instead of repeating the output loop.
