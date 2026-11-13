@@ -57,3 +57,10 @@ file here, and every module records one improvement or optimization below.
   it, an `authorization_token`. `mcpPublic.ts` (DeepWiki, no token) was tested
   end to end; `mcp.ts` (Linear) needs a `LINEAR_MCP_TOKEN` and has only been
   type-checked.
+- **Managed agents (`managedAgent.ts`)** – The agent loop, tool execution and
+  sandbox are hosted by Anthropic: the code only creates an agent (reusable
+  across sessions), an environment (cloud sandbox with limited networking) and a
+  session, then reads an event stream. The bundled `agent_toolset_20260401`
+  replaces hand-written file and bash tools. The stream is opened before the
+  kickoff message is sent so no events are missed, and the script archives what
+  it creates so repeated runs leave the workspace tidy.
