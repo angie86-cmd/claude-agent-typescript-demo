@@ -29,7 +29,7 @@ cp .env.example .env
 ## Run
 
 ```bash
-npm run dev        # run src/index.ts directly with tsx
+npm run dev        # run src/claude_platform/index.ts directly with tsx
 npm run typecheck  # type-check without emitting
 npm run build      # compile to dist/
 npm start          # run the compiled build

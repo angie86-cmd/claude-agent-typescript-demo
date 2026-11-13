@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "tsx src/index.ts",
+    "dev": "tsx src/claude_platform/index.ts",
     "typecheck": "tsc --noEmit",
     "check:basics": "tsc --noEmit -p src/typescript-basics"
   },
