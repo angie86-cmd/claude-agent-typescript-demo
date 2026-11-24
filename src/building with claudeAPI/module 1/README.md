@@ -11,7 +11,7 @@ shape Claude's responses.
 | 2 | Getting an API key | Done | n/a (set `ANTHROPIC_API_KEY` in `.env`) |
 | 3 | Making a request | Done | `firstRequest.ts` |
 | 4 | Multi-turn conversations | Done | `multi_turn.py` |
-| 5 | System prompts | Pending | |
+| 5 | System prompts | Done | `system_prompts.py` |
 | 6 | Temperature | Pending | |
 | 7 | Response streaming | Pending | |
 | 8 | Structured data | Pending | |
