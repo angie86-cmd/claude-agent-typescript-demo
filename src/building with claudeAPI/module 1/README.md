@@ -10,7 +10,7 @@ shape Claude's responses.
 | 1 | Accessing the API | Done | n/a (concepts) |
 | 2 | Getting an API key | Done | n/a (set `ANTHROPIC_API_KEY` in `.env`) |
 | 3 | Making a request | Done | `firstRequest.ts` |
-| 4 | Multi-turn conversations | In progress | |
+| 4 | Multi-turn conversations | Done | `multi_turn.py` |
 | 5 | System prompts | Pending | |
 | 6 | Temperature | Pending | |
 | 7 | Response streaming | Pending | |
@@ -34,6 +34,13 @@ shape Claude's responses.
 
 ```bash
 npx tsx "src/building with claudeAPI/module 1/firstRequest.ts"
+```
+
+The Python lessons need the `anthropic` and `python-dotenv` packages:
+
+```bash
+pip install anthropic python-dotenv
+python "src/building with claudeAPI/module 1/multi_turn.py"
 ```
 
 The course pins `claude-haiku-4-5` for all lessons, because newer models reject
