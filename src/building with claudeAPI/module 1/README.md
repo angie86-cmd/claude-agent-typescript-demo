@@ -12,7 +12,7 @@ shape Claude's responses.
 | 3 | Making a request | Done | `firstRequest.ts` |
 | 4 | Multi-turn conversations | Done | `multi_turn.py` |
 | 5 | System prompts | Done | `system_prompts.py` |
-| 6 | Temperature | Pending | |
+| 6 | Temperature | Done | `temperature.ts` |
 | 7 | Response streaming | Pending | |
 | 8 | Structured data | Pending | |
 | 9 | Quiz on accessing Claude with the API | Pending | n/a |
@@ -26,7 +26,10 @@ shape Claude's responses.
 - **Multi-turn conversations:** the API is stateless, so every request must
   resend the full history, alternating `user` and `assistant` messages.
 - **System prompts:** set Claude's role and tone for the whole conversation.
-- **Temperature:** controls how random or predictable the output is.
+- **Temperature:** a value from 0.0 to 1.0 (default 1.0) that controls how
+  random or predictable the output is. Low values pick the most likely words,
+  which suits factual or repeatable tasks; high values give more varied,
+  creative answers.
 - **Response streaming:** receive the answer in chunks as it is generated.
 - **Structured data:** get output in a fixed format such as JSON.
 
@@ -34,6 +37,7 @@ shape Claude's responses.
 
 ```bash
 npx tsx "src/building with claudeAPI/module 1/firstRequest.ts"
+npx tsx "src/building with claudeAPI/module 1/temperature.ts"
 ```
 
 The Python lessons need the `anthropic` and `python-dotenv` packages:
