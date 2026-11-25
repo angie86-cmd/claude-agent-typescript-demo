@@ -55,3 +55,4 @@ chatbots, automation tools or AI-powered features.
 | Module | Folder | Topic |
 | --- | --- | --- |
 | 1 | [module 1/](module%201/) | Accessing Claude with the API |
+| 2 | [module 2/](module%202/) | Prompt evaluation |
