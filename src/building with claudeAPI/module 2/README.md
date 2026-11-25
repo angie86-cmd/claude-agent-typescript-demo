@@ -8,6 +8,7 @@ How to measure whether a prompt is good instead of guessing.
 | --- | --- | --- | --- |
 | 1 | A typical eval workflow | Done | `promptEval.ts` |
 | 2 | Generating test datasets | Done | `generate_dataset.py` |
+| 3 | Running the eval | Done | `run_eval.py` |
 
 ## What each lesson covers
 
@@ -22,6 +23,11 @@ How to measure whether a prompt is good instead of guessing.
   fast model (Haiku) for a JSON array of `{"task": ...}` objects, using the
   prefill + stop sequence trick to get clean JSON, then save it to
   `dataset.json`. The goal prompt returns Python, JSON or regex for AWS tasks.
+- **Running the eval:** three functions with one job each. `run_prompt` merges
+  the template with a test case and asks Claude; `run_test_case` calls it and
+  grades the output (hardcoded score of 10 for now); `run_eval` loops over the
+  dataset and collects `{output, test_case, score}` results. The prompt has no
+  formatting instructions yet, so the outputs are verbose on purpose.
 
 ## Run
 
@@ -34,6 +40,12 @@ writes `dataset.json` next to the script:
 
 ```bash
 python "src/building with claudeAPI/module 2/generate_dataset.py"
+```
+
+Then run the eval (reads `dataset.json`, so generate it first):
+
+```bash
+python "src/building with claudeAPI/module 2/run_eval.py"
 ```
 
 With only three easy questions, both prompts scored 9.33 on the first run, so
