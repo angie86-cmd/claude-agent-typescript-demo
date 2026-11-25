@@ -9,6 +9,7 @@ How to measure whether a prompt is good instead of guessing.
 | 1 | A typical eval workflow | Done | `promptEval.ts` |
 | 2 | Generating test datasets | Done | `generate_dataset.py` |
 | 3 | Running the eval | Done | `run_eval.py` |
+| 4 | Model-based grading | Done | `run_eval.py` |
 
 ## What each lesson covers
 
@@ -28,6 +29,12 @@ How to measure whether a prompt is good instead of guessing.
   grades the output (hardcoded score of 10 for now); `run_eval` loops over the
   dataset and collects `{output, test_case, score}` results. The prompt has no
   formatting instructions yet, so the outputs are verbose on purpose.
+- **Model-based grading:** `grade_by_model` asks a second Claude call to act as
+  a code reviewer and return JSON with `strengths`, `weaknesses`, `reasoning`
+  and a 1-10 `score`. Asking for the reasoning first matters: without it,
+  models drift toward middling scores around 6. `run_test_case` keeps the score
+  and reasoning, and `run_eval` prints the average with `statistics.mean`.
+  Lesson 4 updates `run_eval.py` in place instead of adding a new file.
 
 ## Run
 

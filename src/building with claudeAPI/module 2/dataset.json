@@ -1,11 +1,11 @@
 [
   {
-    "task": "Write a Python function that extracts the AWS account ID from an ARN string. The function should take an ARN like 'arn:aws:s3:::my-bucket' or 'arn:aws:iam::123456789012:role/MyRole' and return the account ID if present, or None if not applicable."
+    "task": "Write a Python function that extracts the AWS region from an S3 bucket URL in the format 's3://bucket-name.region.amazonaws.com'. The function should return the region name."
   },
   {
-    "task": "Create a JSON object that represents an AWS IAM policy allowing read-only access to a specific S3 bucket named 'my-data-bucket'. The policy should allow ListBucket and GetObject actions only."
+    "task": "Create a JSON policy document for an IAM role that allows an EC2 instance to read objects from a specific S3 bucket named 'my-data-bucket'."
   },
   {
-    "task": "Write a regex pattern that matches valid AWS S3 bucket names. The pattern should enforce AWS S3 naming rules: 3-63 characters, lowercase letters, numbers, hyphens only, cannot start or end with a hyphen, and cannot contain consecutive hyphens."
+    "task": "Write a regex pattern that matches valid AWS IAM role ARNs in the format 'arn:aws:iam::account-id:role/role-name'. The pattern should validate the structure and account ID format."
   }
 ]
