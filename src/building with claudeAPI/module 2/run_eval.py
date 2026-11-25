@@ -5,13 +5,18 @@ The pipeline has three functions, each with one job:
 - `run_test_case` runs one test case and grades the output.
 - `run_eval` runs every test case in the dataset and collects the results.
 
-Each output is graded by a second Claude call (a "model grader") that returns
-strengths, weaknesses, reasoning and a 1-10 score; the run ends with the average
-score. Run `generate_dataset.py` first to create `dataset.json`.
+Each output gets two scores that are averaged:
+- a "model grader" (a second Claude call) judges whether the task was followed
+  and returns strengths, weaknesses, reasoning and a 1-10 score;
+- a "code grader" checks the syntax: the output must parse as the expected
+  format (python, json or regex), which also fails any extra explanation text.
+The run ends with the average score. Run `generate_dataset.py` first to create `dataset.json`.
 """
 
+import ast
 import json
 import os
+import re
 import sys
 from pathlib import Path
 from statistics import mean
@@ -79,8 +84,10 @@ def chat(messages: list[dict], stop_sequences: list[str] | None = None) -> str:
 def run_prompt(test_case: dict) -> str:
     """Merge the prompt template with a test case and return Claude's output.
 
-    The prompt has no formatting instructions on purpose, so the output will be
-    verbose. Improving that is the point of the next lessons.
+    The prompt asks for raw code only, and the reply is prefilled with an opening
+    code block and stopped at the closing one, so there is no commentary around
+    the code. "```code" works for any format, so Claude does not need to be told
+    in advance whether it is Python, JSON or regex.
 
     Args:
         test_case: A dataset entry with a "task" key.
@@ -92,10 +99,14 @@ def run_prompt(test_case: dict) -> str:
 Please solve the following task:
 
 {test_case["task"]}
+
+* Respond only with Python, JSON, or a plain Regex
+* Do not add any comments or commentary or explanation
 """
     messages: list[dict] = []
     add_user_message(messages, prompt)
-    return chat(messages)
+    add_assistant_message(messages, "```code")
+    return chat(messages, stop_sequences=["```"])
 
 
 def grade_by_model(test_case: dict, output: str) -> dict:
@@ -136,6 +147,50 @@ newlines inside strings.
     return json.loads(eval_text.strip())
 
 
+def validate_json(text: str) -> int:
+    """Return 10 if the text parses as JSON, otherwise 0."""
+    try:
+        json.loads(text.strip())
+        return 10
+    except json.JSONDecodeError:
+        return 0
+
+
+def validate_python(text: str) -> int:
+    """Return 10 if the text parses as Python code, otherwise 0."""
+    try:
+        ast.parse(text.strip())
+        return 10
+    except SyntaxError:
+        return 0
+
+
+def validate_regex(text: str) -> int:
+    """Return 10 if the text compiles as a regex, otherwise 0."""
+    try:
+        re.compile(text.strip())
+        return 10
+    except re.error:
+        return 0
+
+
+def grade_syntax(output: str, test_case: dict) -> int:
+    """Pick the validator that matches the format the test case expects.
+
+    Args:
+        output: The text produced by `run_prompt`.
+        test_case: A dataset entry with a "format" key (python, json or regex).
+
+    Returns:
+        10 if the output is valid in that format, otherwise 0.
+    """
+    if test_case["format"] == "json":
+        return validate_json(output)
+    if test_case["format"] == "python":
+        return validate_python(output)
+    return validate_regex(output)
+
+
 def run_test_case(test_case: dict) -> dict:
     """Run one test case through the prompt and grade the result.
 
@@ -143,18 +198,26 @@ def run_test_case(test_case: dict) -> dict:
         test_case: A dataset entry with a "task" key.
 
     Returns:
-        A dict with the `output`, the original `test_case`, its `score` and the
-        grader's `reasoning`.
+        A dict with the `output`, the original `test_case`, the final `score`
+        and the grader's `reasoning`.
     """
     output = run_prompt(test_case)
 
-    # Grade the output with a second Claude call.
+    # Task following: judged by a second Claude call.
     model_grade = grade_by_model(test_case, output)
+    model_score = model_grade["score"]
+
+    # Format and valid syntax: checked by code.
+    syntax_score = grade_syntax(output, test_case)
+
+    # Equal weight to content quality and technical correctness. Adjust the
+    # weights if one matters more for your use case.
+    score = (model_score + syntax_score) / 2
 
     return {
         "output": output,
         "test_case": test_case,
-        "score": model_grade["score"],
+        "score": score,
         "reasoning": model_grade["reasoning"],
     }
 

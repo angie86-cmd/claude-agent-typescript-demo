@@ -2,7 +2,8 @@
 
 The prompt we want to evaluate helps users write Python, JSON or regex for AWS
 tasks and must return only that output, with no explanations. To test it we need
-a dataset: a list of JSON objects, each with a "task" to solve. Writing it by
+a dataset: a list of JSON objects, each with a "task" to solve and the "format" of the
+expected answer (python, json or regex), which the code grader needs. Writing it by
 hand is slow, so Claude generates it and the result is saved to `dataset.json`.
 """
 
@@ -88,7 +89,7 @@ def generate_dataset(size: int = DATASET_SIZE) -> list[dict]:
         size: How many tasks to generate.
 
     Returns:
-        A list of dicts like `{"task": "Description of task"}`.
+        A list of dicts like `{"task": "Description of task", "format": "python"}`.
     """
     prompt = f"""
 Generate an evaluation dataset for a prompt evaluation. The dataset will be used to evaluate prompts that generate Python, JSON, or Regex specifically for AWS-related tasks. Generate an array of JSON objects, each representing task that requires Python, JSON, or a Regex to complete.
@@ -97,7 +98,8 @@ Example output:
 ```json
 [
   {{
-    "task": "Description of task"
+    "task": "Description of task",
+    "format": "python"
   }},
   ...additional
 ]
@@ -105,6 +107,8 @@ Example output:
 
 * Focus on tasks that can be solved by writing a single Python function, a single JSON object, or a single regex
 * Focus on tasks that do not require writing much code
+* "format" must be exactly one of: "python", "json" or "regex"
+* Include a mix of the three formats
 
 Please generate {size} objects.
 """

@@ -10,6 +10,7 @@ How to measure whether a prompt is good instead of guessing.
 | 2 | Generating test datasets | Done | `generate_dataset.py` |
 | 3 | Running the eval | Done | `run_eval.py` |
 | 4 | Model-based grading | Done | `run_eval.py` |
+| 5 | Code-based grading | Done | `run_eval.py`, `generate_dataset.py` |
 
 ## What each lesson covers
 
@@ -35,6 +36,14 @@ How to measure whether a prompt is good instead of guessing.
   models drift toward middling scores around 6. `run_test_case` keeps the score
   and reasoning, and `run_eval` prints the average with `statistics.mean`.
   Lesson 4 updates `run_eval.py` in place instead of adding a new file.
+- **Code-based grading:** the code grader checks format and valid syntax, and
+  the model grader checks task following. `validate_json`, `validate_python`
+  (`ast.parse`) and `validate_regex` (`re.compile`) return 10 if the output
+  parses and 0 if not, so any extra explanation text fails. Each test case now
+  has a `format` field (python, json or regex), which `generate_dataset.py`
+  adds, and `grade_syntax` uses it to pick the validator. The prompt asks for
+  raw code only and uses a prefilled `` ```code `` with a `` ``` `` stop
+  sequence. The final score is the average of the model and syntax scores.
 
 ## Run
 
