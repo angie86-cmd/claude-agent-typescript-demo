@@ -7,6 +7,7 @@ How to measure whether a prompt is good instead of guessing.
 | # | Lesson | Status | File |
 | --- | --- | --- | --- |
 | 1 | A typical eval workflow | Done | `promptEval.ts` |
+| 2 | Generating test datasets | Done | `generate_dataset.py` |
 
 ## What each lesson covers
 
@@ -17,11 +18,22 @@ How to measure whether a prompt is good instead of guessing.
   average. `promptEval.ts` is a minimal version: three questions, two prompt
   versions and Claude as the grader, which replies in JSON (using the prefill +
   stop sequence trick from module 1).
+- **Generating test datasets:** instead of writing eval inputs by hand, ask a
+  fast model (Haiku) for a JSON array of `{"task": ...}` objects, using the
+  prefill + stop sequence trick to get clean JSON, then save it to
+  `dataset.json`. The goal prompt returns Python, JSON or regex for AWS tasks.
 
 ## Run
 
 ```bash
 npx tsx "src/building with claudeAPI/module 2/promptEval.ts"
+```
+
+The dataset generator is Python (needs `anthropic` and `python-dotenv`) and
+writes `dataset.json` next to the script:
+
+```bash
+python "src/building with claudeAPI/module 2/generate_dataset.py"
 ```
 
 With only three easy questions, both prompts scored 9.33 on the first run, so
